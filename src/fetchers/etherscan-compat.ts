@@ -20,8 +20,8 @@ interface EtherscanTx {
   hash: string;
   blockNumber: string;
   timeStamp: string;
-  from: string;
-  to: string;
+  from: string | null;
+  to: string | null;
   value: string;
   gas: string;
   gasPrice: string;
@@ -30,7 +30,7 @@ interface EtherscanTx {
   txreceipt_status: string;
   input: string;
   methodId: string;
-  contractAddress: string;
+  contractAddress: string | null;
   functionName?: string;
   nonce: string;
 }
@@ -39,10 +39,10 @@ interface EtherscanTokenTx {
   hash: string;
   blockNumber: string;
   timeStamp: string;
-  from: string;
-  to: string;
+  from: string | null;
+  to: string | null;
   value: string;
-  contractAddress: string;
+  contractAddress: string | null;
   tokenName: string;
   tokenSymbol: string;
   tokenDecimal: string;
@@ -55,10 +55,10 @@ interface EtherscanInternalTx {
   hash: string;
   blockNumber: string;
   timeStamp: string;
-  from: string;
-  to: string;
+  from: string | null;
+  to: string | null;
   value: string;
-  contractAddress: string;
+  contractAddress: string | null;
   input: string;
   type: string;
   gas: string;
@@ -69,7 +69,7 @@ interface EtherscanInternalTx {
 interface EtherscanApiResponse<T> {
   status: string;
   message: string;
-  result: T[];
+  result: T[] | string;
 }
 
 export interface FetcherConfig {
@@ -106,12 +106,63 @@ async function fetchApi<T>(
   return (await response.json()) as EtherscanApiResponse<T>;
 }
 
+function shouldTreatNonArrayResultAsEmpty(action: string, resultMessage: string): boolean {
+  if (
+    resultMessage.includes("no transactions found") ||
+    resultMessage.includes("no records found")
+  ) {
+    return true;
+  }
+
+  const isOptionalTokenAction = action === "tokennfttx" || action === "token1155tx";
+  return (
+    isOptionalTokenAction &&
+    (resultMessage.includes("invalid action") ||
+      resultMessage.includes("missing or invalid action name"))
+  );
+}
+
+interface ParsedPageResult<T> {
+  results: T[];
+  stop: boolean;
+}
+
+function parsePageResult<T>(
+  response: EtherscanApiResponse<T>,
+  params: Record<string, string>,
+  verbose?: boolean
+): ParsedPageResult<T> {
+  if (Array.isArray(response.result)) {
+    return { results: response.result, stop: false };
+  }
+
+  const action = params["action"] ?? "";
+  const resultMessage = response.result.toLowerCase();
+  if (shouldTreatNonArrayResultAsEmpty(action, resultMessage)) {
+    if (
+      verbose &&
+      (action === "tokennfttx" || action === "token1155tx") &&
+      (resultMessage.includes("invalid action") ||
+        resultMessage.includes("missing or invalid action name"))
+    ) {
+      console.log(`  Action "${action}" is not supported by this explorer, skipping.`);
+    }
+    return { results: [], stop: true };
+  }
+
+  throw new TypeError(
+    `Unexpected API response for module=${params["module"]} action=${action}: ${response.result}`
+  );
+}
+
 async function fetchAllPages<T>(
   baseUrl: string,
   params: Record<string, string>,
   verbose?: boolean
 ): Promise<T[]> {
-  const pageSize = 10_000;
+  // Use a conservative page size for broad explorer compatibility.
+  // Some Etherscan-compatible APIs reject windows > 1000 rows.
+  const pageSize = 1000;
   let page = 1;
   const allResults: T[] = [];
 
@@ -123,10 +174,13 @@ async function fetchAllPages<T>(
       offset: String(pageSize),
     });
 
-    const results = response.result;
+    const parsedPage = parsePageResult(response, params, verbose);
+    const results = parsedPage.results;
     if (verbose) {
       console.log(`  Page ${page}: ${results.length} results`);
     }
+
+    if (parsedPage.stop) break;
 
     allResults.push(...results);
 
@@ -222,6 +276,14 @@ function extractMethod(tx: EtherscanTx): string {
   return "";
 }
 
+function safeAddress(address: string | null | undefined): string {
+  return address ?? "";
+}
+
+function normalizedAddress(address: string | null | undefined): string {
+  return safeAddress(address).toLowerCase();
+}
+
 // ---------- CSV Generation ----------
 
 function generateNativeCsv(txs: EtherscanTx[], address: string, nativeSymbol: string): string {
@@ -248,8 +310,10 @@ function generateNativeCsv(txs: EtherscanTx[], address: string, nativeSymbol: st
 
   const rows = txs.map((tx) => {
     const valueEther = weiToEther(tx.value);
-    const isIncoming = tx.to.toLowerCase() === addr;
-    const isOutgoing = tx.from.toLowerCase() === addr;
+    const txTo = normalizedAddress(tx.to);
+    const txFrom = normalizedAddress(tx.from);
+    const isIncoming = txTo === addr;
+    const isOutgoing = txFrom === addr;
     const fee = calculateFee(tx.gasUsed, tx.gasPrice);
 
     return [
@@ -257,11 +321,11 @@ function generateNativeCsv(txs: EtherscanTx[], address: string, nativeSymbol: st
       tx.blockNumber,
       tx.timeStamp,
       unixToDateTime(tx.timeStamp),
-      tx.from,
-      tx.to,
-      tx.contractAddress,
+      safeAddress(tx.from),
+      safeAddress(tx.to),
+      safeAddress(tx.contractAddress),
       isIncoming ? valueEther : "0",
-      isOutgoing && tx.to.toLowerCase() !== addr ? valueEther : "0",
+      isOutgoing && txTo !== addr ? valueEther : "0",
       "0",
       fee,
       "0",
@@ -295,11 +359,11 @@ function generateTokenCsv(txs: EtherscanTokenTx[]): string {
     tx.blockNumber,
     tx.timeStamp,
     unixToDateTime(tx.timeStamp),
-    tx.from,
-    tx.to,
+    safeAddress(tx.from),
+    safeAddress(tx.to),
     tokenValueToDecimal(tx.value, tx.tokenDecimal),
     "N/A",
-    tx.contractAddress,
+    safeAddress(tx.contractAddress),
     tx.tokenName,
     tx.tokenSymbol,
   ]);
@@ -334,7 +398,8 @@ function generateInternalCsv(
 
   const rows = txs.map((tx) => {
     const valueEther = weiToEther(tx.value);
-    const isIncoming = tx.to.toLowerCase() === addr;
+    const txTo = normalizedAddress(tx.to);
+    const isIncoming = txTo === addr;
 
     return [
       tx.hash,
@@ -343,9 +408,9 @@ function generateInternalCsv(
       unixToDateTime(tx.timeStamp),
       "", // ParentTxFrom - not available from API
       "", // ParentTxTo - not available from API
-      tx.from,
-      tx.to,
-      tx.contractAddress,
+      safeAddress(tx.from),
+      safeAddress(tx.to),
+      safeAddress(tx.contractAddress),
       isIncoming ? valueEther : "0",
       isIncoming ? "0" : valueEther,
       "0",

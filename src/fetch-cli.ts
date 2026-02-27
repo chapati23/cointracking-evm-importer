@@ -24,6 +24,10 @@ interface ChainConfig {
 }
 
 const KNOWN_CHAINS: Record<string, ChainConfig> = {
+  sophon: {
+    apiUrl: "https://api-explorer.sophon.xyz/api",
+    nativeSymbol: "SOPH",
+  },
   zora: {
     apiUrl: "https://explorer.zora.energy/api",
     nativeSymbol: "ETH",

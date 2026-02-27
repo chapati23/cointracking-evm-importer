@@ -112,6 +112,7 @@ Any EtherScan-based explorer should work:
 - Optimism (Optimistic EtherScan)
 - Base (BaseScan)
 - BNB Chain (BscScan)
+- Sophon (Sophon Explorer API)
 
 ## Import Storage
 
@@ -220,11 +221,12 @@ npm run lint
 
 This project uses [Trunk](https://trunk.io) for code quality automation:
 
-**Pre-commit**: Auto-formats code with Prettier
+**Pre-commit**: Auto-formats code with Oxfmt
 
 **Pre-push**: Runs full quality gate before pushing:
 
-- `trunk check --all` - ESLint, Prettier, Markdownlint, security scanners
+- `trunk check --all` - ESLint, Markdownlint, security scanners
+- `npm run format:check` - Oxfmt format check
 - TypeScript type checking
 - Full test suite with coverage
 
@@ -232,10 +234,10 @@ This project uses [Trunk](https://trunk.io) for code quality automation:
 
 **Enabled linters**:
 
-| Linter       | Purpose                           |
+| Tool         | Purpose                           |
 | ------------ | --------------------------------- |
 | ESLint       | TypeScript/JavaScript linting     |
-| Prettier     | Code formatting                   |
+| Oxfmt        | Code formatting                   |
 | Markdownlint | Markdown formatting               |
 | Trufflehog   | Secret detection                  |
 | OSV-Scanner  | Dependency vulnerability scanning |

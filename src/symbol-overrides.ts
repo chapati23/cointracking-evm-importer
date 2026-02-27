@@ -30,6 +30,7 @@ export const COINTRACKING_NATIVE_SYMBOLS: Record<string, string> = {
   Mantle: "MNT3",
   Dymension: "DYM",
   Zora: "ETH",
+  Sophon: "SOPH",
 };
 
 // ---------- Built-in Cointracking Token Symbols ----------

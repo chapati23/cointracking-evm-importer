@@ -69,7 +69,7 @@ trunk check src/index.ts --fix         # Single file check
 
 # ❌ BAD - Don't invoke directly
 npx eslint .
-prettier --write .
+oxfmt
 ```
 
 ## Workflow

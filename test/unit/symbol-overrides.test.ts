@@ -49,6 +49,10 @@ describe("symbol-overrides", () => {
     it("has correct symbol for Dymension", () => {
       expect(COINTRACKING_NATIVE_SYMBOLS["Dymension"]).toBe("DYM");
     });
+
+    it("has correct symbol for Sophon", () => {
+      expect(COINTRACKING_NATIVE_SYMBOLS["Sophon"]).toBe("SOPH");
+    });
   });
 
   describe("COINTRACKING_TOKEN_SYMBOLS", () => {

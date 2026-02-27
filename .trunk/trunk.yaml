@@ -16,7 +16,6 @@ lint:
     - osv-scanner@2.3.2
     - trufflehog@3.92.5
     - eslint@9.39.2
-    - prettier@3.8.1
     - markdownlint@0.47.0
     - git-diff-check
   ignore:
@@ -60,9 +59,23 @@ actions:
       run: npm run typecheck
       triggers:
         - git_hooks: [pre-commit]
+    - id: oxfmt-pre-commit
+      display_name: Oxfmt Pre-Commit
+      description: Format code with Oxfmt before committing
+      run: npm run format
+      triggers:
+        - git_hooks: [pre-commit]
+    - id: oxfmt-check-pre-push
+      display_name: Oxfmt Check Pre-Push
+      description: Verify code is formatted with Oxfmt before pushing
+      run: npm run format:check
+      triggers:
+        - git_hooks: [pre-push]
   enabled:
     - trunk-announce
     - trunk-fmt-pre-commit
+    - oxfmt-pre-commit
+    - oxfmt-check-pre-push
     - trunk-upgrade-available
     - typecheck-pre-commit
     - trunk-check-all-pre-push
