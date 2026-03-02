@@ -25,6 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Format check (Oxfmt)
+        run: npm run format:check
+
+      - name: Lint (Oxlint)
+        run: npm run lint:oxlint
+
       - name: Lint (Trunk)
         uses: trunk-io/trunk-action@v1
         with:
