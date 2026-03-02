@@ -1,9 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn"
-  ],
+  "plugins": ["typescript", "unicorn"],
   "categories": {
     "correctness": "off"
   },
@@ -231,19 +228,10 @@
       "version": "999.999.999"
     }
   },
-  "ignorePatterns": [
-    "node_modules/**",
-    "dist/**",
-    "data/**"
-  ],
+  "ignorePatterns": ["node_modules/**", "dist/**", "data/**"],
   "overrides": [
     {
-      "files": [
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.mts",
-        "**/*.cts"
-      ],
+      "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
       "rules": {
         "constructor-super": "off",
         "no-class-assign": "off",
@@ -266,9 +254,7 @@
       }
     },
     {
-      "files": [
-        "test/**/*.ts"
-      ],
+      "files": ["test/**/*.ts"],
       "rules": {
         "unicorn/no-immediate-mutation": "off",
         "unicorn/numeric-separators-style": "off",
