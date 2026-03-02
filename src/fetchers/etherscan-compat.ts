@@ -166,7 +166,6 @@ async function fetchAllPages<T>(
   let page = 1;
   const allResults: T[] = [];
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const response = await fetchApi<T>(baseUrl, {
       ...params,

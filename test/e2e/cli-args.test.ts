@@ -39,7 +39,6 @@ describe("CLI E2E Tests", () => {
     cwd: string = tempDir
   ): { stdout: string; stderr: string; exitCode: number } {
     // Use spawnSync with array args to avoid shell command injection (CWE-78)
-    // eslint-disable-next-line sonarjs/no-os-command-from-path -- npx is safe in test context
     const result = spawnSync("npx", ["tsx", CLI_PATH, ...args], {
       cwd,
       encoding: "utf8",

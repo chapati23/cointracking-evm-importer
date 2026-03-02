@@ -42,7 +42,6 @@ export function formatNftCurrency(transfer: ParsedNftTransfer): string {
 
 // ---------- Transformation ----------
 
-// eslint-disable-next-line sonarjs/cognitive-complexity -- branching for send/receive/mint/burn cases
 export function transformNftTransfer(
   transfer: ParsedNftTransfer,
   config: ConvertConfig,

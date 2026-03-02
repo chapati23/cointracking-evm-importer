@@ -63,8 +63,7 @@ interface FileChoice {
  * Works like terminal tab completion - type a path and get matching suggestions.
  */
 function createFileSource(options: { basePath: string; filter?: (name: string) => boolean }) {
-  // eslint-disable-next-line @typescript-eslint/require-await, sonarjs/cognitive-complexity -- library expects Promise; path resolution logic
-  return async (input: string | undefined): Promise<FileChoice[]> => {
+  return async (input: string | undefined = ""): Promise<FileChoice[]> => {
     // Expand ~ to home directory
     const expandPath = (p: string): string => {
       if (p.startsWith("~")) {
@@ -74,14 +73,13 @@ function createFileSource(options: { basePath: string; filter?: (name: string) =
     };
 
     // If no input yet, show contents of basePath
-    const rawInput = input ?? "";
-    const expandedInput = expandPath(rawInput);
+    const expandedInput = expandPath(input);
 
     // Determine what directory to list and what prefix to filter by
     let dirToList: string;
     let filterPrefix: string;
 
-    if (rawInput === "") {
+    if (input === "") {
       // No input - show basePath contents
       dirToList = options.basePath;
       filterPrefix = "";
@@ -150,7 +148,6 @@ function createFileSource(options: { basePath: string; filter?: (name: string) =
  * Prompt for a file path with tab completion.
  * Returns the selected path or undefined if cancelled.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity -- interactive loop with multiple exit conditions
 async function promptFilePath(options: {
   message: string;
   basePath: string;
@@ -159,7 +156,6 @@ async function promptFilePath(options: {
   let currentBase = options.basePath;
 
   // Loop until user selects a file (not a directory) or cancels
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     try {
       const result = await autocomplete({
@@ -242,14 +238,12 @@ async function promptInputMode(): Promise<InputMode> {
  * Prompt for a folder path with tab completion.
  * Returns the selected directory path.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity -- interactive loop with multiple exit conditions
 async function promptFolderPath(options: {
   message: string;
   basePath: string;
 }): Promise<string | undefined> {
   let currentBase = options.basePath;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     try {
       const result = await autocomplete({
@@ -308,12 +302,10 @@ async function promptFolderPath(options: {
  * Prompt for multiple files with a loop.
  * Shows running list of selected files with detected types.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity -- multi-step interactive file selection
 async function promptMultipleFiles(startDir: string): Promise<DetectedFile[]> {
   const files: DetectedFile[] = [];
   let lastDir = startDir;
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     // Show current list if any files selected
     if (files.length > 0) {
@@ -643,7 +635,6 @@ interface ConvertOptions {
   test?: boolean;
 }
 
-// eslint-disable-next-line sonarjs/cognitive-complexity -- main CLI command with extensive interactive flow
 async function convertCommand(opts: ConvertOptions): Promise<void> {
   let nativeFile: string | undefined;
   let tokensFile: string | undefined;

@@ -64,11 +64,11 @@ Use targeted test runs when possible: `npm test -- <test-file>`
 # ✅ GOOD
 trunk fmt                              # Fast formatting only
 trunk check --fix                      # Full lint + format + fix
-trunk check --filter eslint --fix      # Targeted eslint only
+npm run lint:oxlint                    # Oxlint only (TS/JS)
 trunk check src/index.ts --fix         # Single file check
 
-# ❌ BAD - Don't invoke directly
-npx eslint .
+# ❌ BAD - Don't invoke linters directly when Trunk runs them
+npx oxlint .
 oxfmt
 ```
 

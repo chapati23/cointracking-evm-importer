@@ -15,7 +15,6 @@ lint:
     - codespell@2.4.1
     - osv-scanner@2.3.2
     - trufflehog@3.92.5
-    - eslint@9.39.2
     - markdownlint@0.47.0
     - git-diff-check
   ignore:
@@ -71,11 +70,18 @@ actions:
       run: npm run format:check
       triggers:
         - git_hooks: [pre-push]
+    - id: oxlint-pre-push
+      display_name: Oxlint Pre-Push
+      description: Run Oxlint on TS/JS before pushing
+      run: npx oxlint .
+      triggers:
+        - git_hooks: [pre-push]
   enabled:
     - trunk-announce
     - trunk-fmt-pre-commit
     - oxfmt-pre-commit
     - oxfmt-check-pre-push
+    - oxlint-pre-push
     - trunk-upgrade-available
     - typecheck-pre-commit
     - trunk-check-all-pre-push

@@ -39,7 +39,6 @@ export function formatAddressPath(address: string): string {
  * Extract the date range from CSV files by scanning the DateTime column.
  * Returns the oldest and newest dates found.
  */
-// eslint-disable-next-line sonarjs/cognitive-complexity -- nested loops for file/row scanning
 export function extractDateRange(files: DetectedFile[]): { from: string; to: string } {
   const dates: string[] = [];
 

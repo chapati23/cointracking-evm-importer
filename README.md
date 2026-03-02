@@ -225,7 +225,8 @@ This project uses [Trunk](https://trunk.io) for code quality automation:
 
 **Pre-push**: Runs full quality gate before pushing:
 
-- `trunk check --all` - ESLint, Markdownlint, security scanners
+- `trunk check --all` - Markdownlint, security scanners
+- `npx oxlint .` - TypeScript/JavaScript linting (Oxlint)
 - `npm run format:check` - Oxfmt format check
 - TypeScript type checking
 - Full test suite with coverage
@@ -236,7 +237,7 @@ This project uses [Trunk](https://trunk.io) for code quality automation:
 
 | Tool         | Purpose                           |
 | ------------ | --------------------------------- |
-| ESLint       | TypeScript/JavaScript linting     |
+| Oxlint       | TypeScript/JavaScript linting     |
 | Oxfmt        | Code formatting                   |
 | Markdownlint | Markdown formatting               |
 | Trufflehog   | Secret detection                  |
